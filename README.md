@@ -1,1 +1,1 @@
-# Perfect-Number-s-Theorem
+# Perfect Number's Theorem

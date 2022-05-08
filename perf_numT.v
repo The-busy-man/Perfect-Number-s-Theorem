@@ -1,5 +1,4 @@
 From mathcomp Require Import all_ssreflect.
-Require Import Lia.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -252,17 +251,6 @@ Proof.
   by rewrite mulnC [RHS]mulnC; apply: cpr_mult_projl.
 Qed.
 
-Lemma gcd_mult a b (apos: a > 0): (coprime a b) ->
-                    forall k, gcdn (a*b) k = (gcdn a k)*(gcdn b k).
-Proof.
-  move => cprab k.
-  have H n n' m: gcdn n m = gcdn n (gcdn (n*n') m).
-    by rewrite [RHS]gcdnC gcdnAC [gcdn (n * n') n]gcdnC gcdnMr.
-  rewrite (H b a k) [b * a]mulnC (H a b k).
-  apply /mult_div => //.
-  exact: dvdn_gcdl.
-Qed.
-
 Lemma div2_to_divPerm a b (apos: a > 0) (bpos: b > 0): coprime a b -> perm_eq
   (map div_prod (allpairs pair (divisors a) (divisors b)))
   (divisors (a*b)).
@@ -302,7 +290,7 @@ Proof.
   move => /= x y xdivab ydivab eqpair; move: xdivab ydivab.
   rewrite -!dvdn_divisors; try (rewrite -(mul0n 0); apply: ltn_mul) => //.
   move => /gcdn_idPr xdivab /gcdn_idPr ydivab.
-  rewrite -xdivab -ydivab !gcd_mult => //.
+  rewrite -xdivab -ydivab !gcdnM => //.
   move /(f_equal div_prod) in eqpair *.
   by rewrite /div_prod /= in eqpair.
 Qed.
