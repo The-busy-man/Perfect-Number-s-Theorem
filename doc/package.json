@@ -1,0 +1,22 @@
+{
+  "name": "perfnum_th",
+  "version": "1.0.0",
+  "description": "An interpretation for the SSReflect formalization of the Perfect Number's Theorem Euler's original proof.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/The-busy-man/Perfect-Number-s-Theorem.git"
+  },
+  "author": "Raül Espejo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/The-busy-man/Perfect-Number-s-Theorem/issues"
+  },
+  "homepage": "https://github.com/The-busy-man/Perfect-Number-s-Theorem#readme",
+  "dependencies": {
+    "@jscoq/mathcomp": "^0.15.0",
+    "http-server": "^14.1.0",
+    "jscoq": "^0.15.0",
+    "wacoq": "^0.15.0"
+  }
+}
