@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <title>Using jsCoq with NPM (a template)</title>
+    <title>PerfNumT using jsCoq</title>
 
     <!-- important: this will not work from *within* the jsCoq package dir; -->
     <!-- this template is meant to be copied to your project dir and edited -->
@@ -14,9 +14,13 @@
   <div id="ide-wrapper" class="toggled">
     <div id="code-wrapper">
       <div id="document">
-        <h1>Write a header here</h1>
+        <h1>Perfect Number's Theorem</h1>
         <p>
-            Write some text as well.
+            Manipulate and compile run-time the demonstration for the Perfect Number theorem.
+            Alternative shorter proof available in <a href = "https://github.com/The-busy-man/Perfect-Number-s-Theorem">the repository</a>.
+        </p>
+        <p>
+          Here we follow the original Euler's proof, as shown in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>.
         </p>
         <textarea id="coq-code">
 From mathcomp Require Import all_ssreflect.
@@ -24,40 +28,6 @@ From mathcomp Require Import all_ssreflect.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-
-Lemma prime_ind (P: nat -> Type) (P1: P 1) (Pprime: forall p, prime p -> P p)
-      (Pmul: forall a b, P a -> P b -> (P (a*b))):
-  forall c, (c > 0) -> P c.
-Proof.
-  move => c cpos.
-  rewrite (prod_prime_decomp cpos) big_seq.
-  apply: big_ind => //= s.
-  rewrite {1}(surjective_pairing s) => /mem_prime_decomp [sprim _ _].
-  move: Pprime s.2 => /(_ _ sprim) Ps.
-  elim => [//| n IHn].
-  rewrite expnS.
-  by apply: (Pmul _ _ Ps IHn).
-Qed.
-Lemma prime_indN (P: nat -> Type) (P0: P 0) (P1: P 1) (Pprime: forall p, prime p -> P p)
-      (Pmul: forall a b, P a -> P b -> (P (a*b))):
-  forall c, P c.
-Proof.
-  move => c.
-  case cpos: c => [//| c'].
-  exact: prime_ind.
-Qed.
-
-Lemma strong_nat_ind (P : nat -> Prop) (base : P 0)
-      (step : forall n, (forall m, m <= n -> P m) -> P n.+1) x : P x.
-Proof.
-  apply: (nat_ind (fun n => forall m, m <= n -> P m) _ _ x x (leqnn x)).
-    move => m.
-    by rewrite leqn0 => /eqP ->.
-  move => n IHn m.
-  case H: m => [//| m'] /ltnSE mleqn.
-  apply: step => m'' mleqm.
-  apply: (IHn _ (leq_trans mleqm mleqn)).
-Qed.
 
 Lemma prime_decomp_ind (P: nat -> Prop) (P0: P 0) (P1: P 1)
       (Pprime: forall p k, prime p -> k > 0 -> P (p^k))
@@ -70,7 +40,7 @@ Proof.
   rewrite -eqn_leq => /eqP ->.
   case: n m mleqn IHn => [//| n _ _ IHn].
   have ngt1: 1 < n.+2 by rewrite ltnS.
-  have npos: 0 < n.+2 by[].
+  have npos: 0 < n.+2 by [].
   have logpos: (0 < logn (pdiv n.+2) n.+2).
     rewrite logn_gt0 mem_primes; apply/andP; split; last (apply/andP; split) => //.
       by apply: pdiv_prime; rewrite ltnS.
@@ -120,7 +90,7 @@ Proof.
                   (dvdn_trans (dvdn_mull _ _) divc)).
 Qed.
 
-Lemma mult_div a b c (apos: a > 0): (coprime a b) ->
+Lemma div_gcdnE a b c (apos: a > 0): (coprime a b) ->
                       reflect (c = (gcdn a c)*(gcdn b c)) (c %| a*b).
 Proof.
   move => cprab; apply: Coq.Bool.Bool.iff_reflect.
@@ -132,48 +102,6 @@ Qed.
 
 Definition div_pair a b d:= (gcdn a d, gcdn b d).
 Definition div_prod (d: nat*nat):= d.1*d.2.
-
-Lemma pair_prodK a b (apos: a > 0) (bpos: b > 0): coprime a b ->
-  (map div_prod (map (div_pair a b) (divisors (a*b)))) = divisors (a*b).
-Proof.
-  move => cprab.
-  apply: (eq_from_nth) => [| i iinseq].
-    by rewrite !size_map.
-  rewrite (nth_map (0, 0) _ div_prod); last
-    by rewrite size_map in iinseq.
-  rewrite (nth_map 0 _ (div_pair a b)); last
-    by rewrite !size_map in iinseq.
-  rewrite /div_pair/div_prod /=.
-  apply/eqP. rewrite/eqP eq_sym; apply/eqP.
-  apply/mult_div => //. rewrite dvdn_divisors; last first.
-    by rewrite -(muln0 0) (ltn_mul apos bpos).
-  apply mem_nth; by rewrite !size_map in iinseq.
-Qed.
-
-Lemma prod_pairK a b (apos: a > 0) (bpos: b > 0): coprime a b ->
-  (map (div_pair a b) (map div_prod (allpairs pair (divisors a) (divisors b)))) =
-  (allpairs pair (divisors a) (divisors b)).
-Proof.
-  move => cprab /=.
-  rewrite -map_comp. rewrite map_allpairs.
-  apply eq_in_allpairs; move => n m;
-  rewrite -dvdn_divisors // => ndiva;
-  rewrite -dvdn_divisors // => ndivb.
-  rewrite /div_pair /div_prod /comp /=.
-  have npos: n > 0.
-    case: n ndiva => //.
-    by rewrite dvd0n => /eqP ndiva; rewrite ndiva in apos.
-  have cprnb: coprime n b.
-    exact: (@coprime_dvdl _ a).
-  have cpram: coprime a m.
-    exact: (@coprime_dvdr _ b).
-  have cprnm: coprime n m.
-    exact: (@coprime_dvdl _ a).
-  rewrite gcdnC (gcdnC b) !gcdnM //.
-  move: cprnb cpram; rewrite !/coprime => /eqP -> /eqP.
-  rewrite gcdnC => ->; rewrite mul1n muln1.
-  apply pair_equal_spec; split; do 2 (exact/gcdn_idPl).
-Qed.
 
 Lemma div2_to_div a b (apos: a > 0) (bpos: b > 0): coprime a b ->
   map div_prod (allpairs pair (divisors a) (divisors b)) =i
@@ -192,7 +120,7 @@ Proof.
   rewrite -dvdn_divisors; last first.
     by rewrite -(muln0 0) (ltn_mul apos bpos).
   apply/eqP. rewrite eq_sym; apply/eqP.
-  apply /(mult_div x apos cprab)/eqP.
+  apply /(div_gcdnE x apos cprab)/eqP.
   case H2: (x == _) => //.
   move: H2 H => /eqP H2 /negP.
   apply: absurd.
@@ -200,42 +128,6 @@ Proof.
   - rewrite -dvdn_divisors //; exact: dvdn_gcdl.
   - rewrite -dvdn_divisors //; exact: dvdn_gcdl.
   by rewrite /div_prod /=.
-Qed.
-
-Lemma div_to_div2 a b (apos: a > 0) (bpos: b > 0):
-  coprime a b -> map (div_pair a b) (divisors (a*b))
-                 =i allpairs pair (divisors a) (divisors b).
-Proof.
-  rewrite /eq_mem /allpairs.
-  move => cprab x.
-  case H: (x \in _).
-    move: H => /mapP [c cdivab xisabc].
-    apply: eqP.
-    rewrite eq_sym.
-    apply/eqP/allpairsP.
-    apply: (ex_intro _ (gcdn a c, gcdn b c)) => /=; split.
-    - by rewrite -dvdn_divisors => //; rewrite dvdn_gcdl.
-    - by rewrite -dvdn_divisors => //; rewrite dvdn_gcdl.
-    by rewrite /div_pair in xisabc.
-  case H2: (x \in _) => //.
-  move: H2 => /allpairsP [c [cdiva cdivb xiscc]].
-  rewrite -(dvdn_divisors _ apos) in cdiva.
-  rewrite -(dvdn_divisors _ bpos) in cdivb.
-  move: H => /mapP H.
-  have nH: exists2 n, n \in divisors (a*b) & x = div_pair a b n.
-    apply: (ex_intro2 _ _ (c.1*c.2)).
-      rewrite -dvdn_divisors.
-        exact: dvdn_mul.
-      by rewrite -(muln0 0) ltn_mul.
-    rewrite /div_pair xiscc.
-    apply/eqP; rewrite xpair_eqE; apply/andP; split; apply/eqP.
-      rewrite Gauss_gcdl.
-        by apply: eqP; rewrite eq_sym; apply/eqP/gcdn_idPr.
-      exact: (coprime_dvdr cdivb).
-    rewrite Gauss_gcdr.
-      apply: eqP; rewrite eq_sym; exact/eqP/gcdn_idPr.
-    by apply: (coprime_dvdr cdiva); rewrite coprime_sym.
-  by[].
 Qed.
 
 Lemma cpr_divl a b c: c%|a -> (coprime a b) -> (coprime c b).
@@ -297,25 +189,6 @@ Proof.
   by rewrite coprime_sym.
 Qed.
 
-Lemma divPerm_to_div2 a b (apos: a > 0) (bpos: b > 0):
-  coprime a b -> perm_eq (map (div_pair a b) (divisors (a*b)))
-                 (allpairs pair (divisors a) (divisors b)).
-Proof.
-  move => cprab; apply: uniq_perm; last first.
-  - exact: div_to_div2.
-  - apply: allpairs_uniq; try exact: divisors_uniq.
-    move => /= x y /allpairsPdep [x0 [x1 [_ _ xx]]].
-    move => /allpairsPdep [y0 [y1 [_ _ yy]]].
-    by rewrite xx yy => /=.
-  rewrite /div_pair map_inj_in_uniq; first exact: divisors_uniq.
-  move => /= x y xdivab ydivab eqpair; move: xdivab ydivab.
-  rewrite -!dvdn_divisors; try (rewrite -(mul0n 0); apply: ltn_mul) => //.
-  move => /gcdn_idPr xdivab /gcdn_idPr ydivab.
-  rewrite -xdivab -ydivab !gcdnM => //.
-  move /(f_equal div_prod) in eqpair *.
-  by rewrite /div_prod /= in eqpair.
-Qed.
-
 Lemma prime_div p k (kgt0: k > 0): prime p -> prime_decomp (p^k) = [:: (p, k)].
 Proof.
   rewrite prime_decompE => primp.
@@ -332,27 +205,17 @@ Proof.
   - apply sorted_divisors_ltn.
   - rewrite sorted_map /relpre /=; apply/(pathP 0) => i iinSk/=.
     rewrite (ltn_exp2l _ _ (prime_gt1 _)) //=.
-    move: iinSk; case: i => [| i iinSk].
+    move: iinSk; case: i => [| i].
       rewrite /= nth0. by case: k.
-    rewrite nth_iota /=.
-      rewrite nth_iota.
-        by rewrite !add1n.
-      by rewrite size_iota in iinSk; apply (ltn_trans (ltnSn _)).
-    by rewrite size_iota in iinSk.
+    rewrite size_iota => iinSk; repeat (rewrite nth_iota //=).
+    by apply (ltn_trans (ltnSn _)).
   rewrite /eq_mem => x; rewrite -dvdn_divisors; last by rewrite expn_gt0 prime_gt0.
   apply/dvdn_pfactor => //. case H: (x \in _).
     move: H => /mapP [z zinSSk xispz]; exists z => //.
-    by rewrite mem_iota // in zinSSk.
+    by rewrite mem_iota in zinSSk.
   move: H => /mapP H [z zleqk xispz].
-  by have nH: exists2 n, n \in iota 0 k.+1 & x = p^n
-    by exists z => //; rewrite mem_iota.
-Qed.
-
-Goal forall p, (prime p) -> divisors (p^3) = [:: 1; p; p*(p); p*(p*(p))].
-  intros.
-  rewrite /divisors prime_div //=.
-  do 3 (rewrite leqNgt prime_gt1;
-  rewrite ?NatTrec.mulE ?muln1 //=).
+  suff nH: exists2 n, n \in iota 0 k.+1 & x = p^n => //.
+  by exists z => //; rewrite mem_iota.
 Qed.
 
 Definition multiplicative f := forall a b, (coprime a b) -> f (a*b) = (f a)*(f b).
@@ -381,26 +244,19 @@ Proof.
   rewrite map_allpairs /div_prod big_allpairs_dep /=.
   rewrite (eq_big_seq (fun i1 =>
     \sum_(i2 <- divisors b.+1) (f i1) * g (a.+1 %/ i1) * ((f i2) * (g (b.+1 %/ i2)))));
-    last first.
-    move => i idiva.
+    last first. move => i; rewrite -(dvdn_divisors _ (ltn0Sn a)) => idiva.
     rewrite (eq_big_seq (fun i2 => f i * g (a.+1 %/ i) * (f i2 * g (b.+1 %/ i2)))) => //;
-      last first.
-    move => j jdivb; rewrite f_cdt.
-      rewrite divnMA -divn_mulAC.
-        rewrite -muln_divA.
-          rewrite g_cdt.
-          by rewrite mulnA [f i * f j * g (a.+1 %/ i)]mulnC
+    last first. move => j; rewrite -(dvdn_divisors _ (ltn0Sn b)) => jdivb.
+    rewrite f_cdt.
+      rewrite divnMA -divn_mulAC //.
+      rewrite -muln_divA //.
+      rewrite g_cdt.
+        by rewrite mulnA [f i * f j * g (a.+1 %/ i)]mulnC
                      mulnA [g (a.+1 %/ i) * f i]mulnC -mulnA.
-          apply: (@proj1 _ (coprime i (b.+1%/j))); apply/andP; rewrite -coprimeMl divnK.
-            apply: (@proj1 _ (coprime a.+1 j)); apply/andP; rewrite -coprimeMr divnK => //.
-            by rewrite dvdn_divisors.
-          by rewrite dvdn_divisors.
-        by rewrite dvdn_divisors.
-      by rewrite dvdn_divisors.
-    apply: (@proj2 (coprime (a.+1%/i) j) _); apply/andP; rewrite -coprimeMl divnK.
-      apply: (@proj2 (coprime a.+1 (b.+1%/j)) _); apply/andP; rewrite -coprimeMr divnK => //.
-      by rewrite dvdn_divisors.
-    by rewrite dvdn_divisors.
+      apply: (@proj1 _ (coprime i (b.+1%/j))); apply/andP; rewrite -coprimeMl divnK //.
+      apply: (@proj1 _ (coprime a.+1 j)); apply/andP; rewrite -coprimeMr divnK => //.
+    apply: (@proj2 (coprime (a.+1%/i) j) _); apply/andP; rewrite -coprimeMl divnK //.
+    apply: (@proj2 (coprime a.+1 (b.+1%/j)) _); apply/andP; rewrite -coprimeMr divnK => //.
   by rewrite -big_distrlr.
 Qed.
 
@@ -667,38 +523,39 @@ Proof.
     rewrite (eqP qis1) mul1n /s -[_^n](@subnK 1) ?expn_gt0 // perp3 in sisq.
     move: (pfac); rewrite -perp3 mulnC => pfac2; split => //.
     by apply: sigmapS => //; rewrite perp3.
-  have sgeqsum: s >= 1 + (2^n-1) + q + m.
-    rewrite /s sigma_geqdvd //.
-    - case _1ltm: (1 < m) => //; move: _1ltm => /negP /negP; rewrite -leqNgt.
-      rewrite leq_eqVlt => /orP [/eqP mis1|].
-        by move: perp3 => /eqP; rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
-      by rewrite ltnS leqn0 => /eqP => mis0; rewrite mis0 in mpos.
-    - by move: qis1; rewrite eq_sym => /negP/negP.
-    - case _1is2n: (1 == 2^n - 1) => //=; move: _1is2n.
-      rewrite subn1 -eqSS prednK ?expn_gt0 // -{1}(expn1 2) eqn_exp2l // => /eqP eq1n.
-      by rewrite -eq1n expn0 mul1n in pfac; rewrite -pfac prime_coprime ?peven in cpr2m.
-    case qis2n: (q == 2^n-1) => //=.
-         (*A la demo original l'hi faltava demostrar aquest cas*)
-    move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
-    have lt12n: 1 < 2^n-1.
-      by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
-    move: (sigma_sqr (2 ^ n - 1)); rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
-    move => nH2; case H: (n <= 1) => //; move: H.
-      case H2: (n > 0) => // /(conj H2) /andP; rewrite -eqn_leq => /eqP => H.
-      rewrite -H /sigma /dirichlet_conv unlock /= in nH.
-      by rewrite expn1 muln1 addn0 subn1 /= mul1n in nH.
-    move: (sigma_geqn lt12n) => nH3.
-    move: (conj (leq_trans nH2 (leqSpred (2^n))) nH3).
-    rewrite -subn1 -[(_-_).+1]addn1 => /andP; rewrite -eqn_leq => /eqP /sigmapS nH4.
-    move: nH; rewrite mulnn sigmaX // -[3]addn1 -{5}(expn0 (2^n-1)) -geoSum //.
-    rewrite unlock /= expnS expnS expn0 addn0 mulnBr mulnBl mul1n muln1 addnABC //.
-      rewrite subnn add0n -{2}[(2 ^ n - 1) * 2 ^ n](add0n) => /eqP.
-      by rewrite eqn_add2r.
-    rewrite -{1}(muln1 (2^n-1)) leq_pmul2l ?expn_gt0 //; exact: (@ltn_trans 1).
-  move: sgeqsum mpos;
-  rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 // subnn add0n.
-  by rewrite mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->; rewrite sub0n mul0n.
-Qed.</textarea>
+  suff sgeqsum: s >= 1 + (2^n-1) + q + m.
+    move: sgeqsum mpos;
+    rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 // subnn add0n.
+    by rewrite mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->; rewrite sub0n mul0n.
+  rewrite /s sigma_geqdvd //.
+  - case _1ltm: (1 < m) => //; move: _1ltm => /negP /negP; rewrite -leqNgt.
+    rewrite leq_eqVlt => /orP [/eqP mis1|].
+      by move: perp3 => /eqP; rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
+    by rewrite ltnS leqn0 => /eqP => mis0; rewrite mis0 in mpos.
+  - by move: qis1; rewrite eq_sym => /negP/negP.
+  - case _1is2n: (1 == 2^n - 1) => //=; move: _1is2n.
+    rewrite subn1 -eqSS prednK ?expn_gt0 // -{1}(expn1 2) eqn_exp2l // => /eqP eq1n.
+    by rewrite -eq1n expn0 mul1n in pfac; rewrite -pfac prime_coprime ?peven in cpr2m.
+  case qis2n: (q == 2^n-1) => //=.
+         (*A la demo original l'hi faltava demostrar aquesta part*)
+  move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
+  have lt12n: 1 < 2^n-1.
+    by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
+  move: (sigma_sqr (2 ^ n - 1)); rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
+  move => nH2; case H: (n <= 1) => //; move: H.
+    case H2: (n > 0) => // /(conj H2) /andP; rewrite -eqn_leq => /eqP => H.
+    rewrite -H /sigma /dirichlet_conv unlock /= in nH.
+    by rewrite expn1 muln1 addn0 subn1 /= mul1n in nH.
+  move: (sigma_geqn lt12n) => nH3.
+  move: (conj (leq_trans nH2 (leqSpred (2^n))) nH3).
+  rewrite -subn1 -[(_-_).+1]addn1 => /andP; rewrite -eqn_leq => /eqP /sigmapS nH4.
+  move: nH; rewrite mulnn sigmaX // -[3]addn1 -{5}(expn0 (2^n-1)) -geoSum //.
+  rewrite unlock /= expnS expnS expn0 addn0 mulnBr mulnBl mul1n muln1 addnABC //.
+    rewrite subnn add0n -{2}[(2 ^ n - 1) * 2 ^ n](add0n) => /eqP.
+    by rewrite eqn_add2r.
+  rewrite -{1}(muln1 (2^n-1)) leq_pmul2l ?expn_gt0 //; exact: (@ltn_trans 1).
+Qed.
+</textarea>
       </div>
     </div>
   </div>
