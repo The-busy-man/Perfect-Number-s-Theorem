@@ -2,12 +2,44 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <style>
+      #window{
+          width:500px;
+          border:none;
+      }
+
+      #title_bar{
+          background: #FEFEFE;
+          height: 25px;
+          width: 100%;
+      }
+      #box{
+          height: 250px;
+          background: #DFDFDF;
+      }
+    </style>
+    
+    <script src="jquery-3.6.0.js"></script>
+    <script>
+      function myFunction() {
+        var x = document.getElementById("button");
+        var y = document.getElementById("box");
+        if (y.style.display === "none") {
+          x.innerHTML = "-";
+          y.style.display = "block";
+        } else {
+          x.innerHTML = "+";
+          y.style.display = "none";
+        }
+      } 
+    </script>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <title>PerfNumT using jsCoq</title>
 
     <!-- important: this will not work from *within* the jsCoq package dir; -->
     <!-- this template is meant to be copied to your project dir and edited -->
-  <script src="./node_modules/wacoq/ui-js/jscoq-loader.js"></script>
+
+    <script src="./node_modules/wacoq/ui-js/jscoq-loader.js"></script>
   </head>
 
 <body class="jscoq-main">
@@ -22,13 +54,24 @@
         <p>
           Here we follow the original Euler's proof, as shown in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>.
         </p>
-        <textarea id="coq-code">
+        <div id="window">
+          <div id="title_bar">
+            Introduïm els mòduls i notacions necessaris per la demostració.
+            <button onclick="myFunction()"><span id="button">-</span></button>
+          </div>
+          <div id="box">
+        <textarea class="snippet">
 From mathcomp Require Import all_ssreflect.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
-Unset Printing Implicit Defensive.
-
+Unset Printing Implicit Defensive.</textarea>
+          </div>
+        </div>
+        <p>
+          Comencem per demostrar alguns lemes auxiliars.
+        </p>
+<textarea class="snippet">
 Lemma prime_decomp_ind (P: nat -> Prop) (P0: P 0) (P1: P 1)
       (Pprime: forall p k, prime p -> k > 0 -> P (p^k))
       (Pmul: forall a b, P a -> P b -> coprime a b -> (P (a*b))) c: P c.
@@ -554,8 +597,7 @@ Proof.
     rewrite subnn add0n -{2}[(2 ^ n - 1) * 2 ^ n](add0n) => /eqP.
     by rewrite eqn_add2r.
   rewrite -{1}(muln1 (2^n-1)) leq_pmul2l ?expn_gt0 //; exact: (@ltn_trans 1).
-Qed.
-</textarea>
+Qed.</textarea>
       </div>
     </div>
   </div>
@@ -563,16 +605,15 @@ Qed.
   <!-- jsCoq configuration part -->
   <script type="text/javascript">
 
-    var jscoq_ids  = ['coq-code'];
+    var jscoq_ids  = ['.snippet'];
     var jscoq_opts = {
         prelude:       true,
         implicit_libs: true,
-        base_path:     './node_modules/jscoq/',
-        editor:        { mode: { 'company-coq': true }, keyMap: 'default' },
+        editor:        { mode: { 'company-coq': true } },
         init_pkgs:     ['init', 'mathcomp'],
         all_pkgs:      ['coq', 'mathcomp']
     };
 
-    JsCoq.start(jscoq_opts.base_path, './node_modules', jscoq_ids, jscoq_opts);
+    JsCoq.start(jscoq_ids, jscoq_opts);
   </script>
 </body>
