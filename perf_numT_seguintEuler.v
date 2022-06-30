@@ -202,9 +202,6 @@ Definition sigma := dirichlet_conv (fun n => n) (fun n => 1).
 Definition perfect p := sigma p = 2 * p.
 Definition mersenne p := (prime p)/\(exists k, p = 2^k - 1).
 
-Definition divisors_n1 p := behead (divisors p).
-Definition divisors_n1p p := behead (belast 0 (divisors_n1 p)).
-
 Theorem dirichletM f g (f_cdt : multiplicative f) (g_cdt : multiplicative g) :
   (multiplicative (dirichlet_conv f g)).
 Proof.
@@ -246,7 +243,7 @@ Proof.
       by rewrite leq_exp2l // -addSnnS ltn_addr.
     by rewrite leq_exp2l.
   by rewrite subn_gt0.
-Qed.
+Qed.☺
 
 Corollary sigmaM: multiplicative sigma.
 Proof.
@@ -356,19 +353,6 @@ Proof.
   rewrite /sigma /dirichlet_conv ppos.
   rewrite (big_rem k) //= (big_rem l) //= (big_rem p) //= (big_rem 1) //=.
   rewrite !muln1 !addnA -[_+l]addnA -[_+p]addnA [1+_]addnC -{1}[_+_+_+_]addn0 leq_add2l //.
-Qed.
-
-Lemma arith_leqgeo x y: x > 1 -> y > 1 -> x+y <= x*y.
-Proof.
-  move => leq1x leq0y; rewrite -(@leq_subRL x).
-    rewrite (@leq_trans (2*y-2)) //; last first.
-      by rewrite -{2}(muln1 x) -{2}(muln1 2) -!mulnBr leq_pmul2r // subn_gt0.
-    rewrite (@leq_subRL 2); last first.
-      by rewrite (@ltn_trans y) // -{1}(mul1n y) ltn_pmul2r // (@ltn_trans 1).
-    rewrite addnC -(@leq_subRL y); last first.
-      by rewrite (@leq_trans y) // -{1}(mul1n y) leq_pmul2r // (@ltn_trans 1).
-    by rewrite -{2}(mul1n y) -mulnBl /subn /= mul1n.
-  by rewrite -{1}(muln1 x) leq_pmul2l // (@ltn_trans 1).
 Qed.
 
 Proposition cpr_primesM x y: coprime x y -> (perm_eq (primes (x*y)) ((primes x)++(primes y))).
