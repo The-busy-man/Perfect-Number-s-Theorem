@@ -27,6 +27,7 @@
         left:55px;
       }
       #window{
+        margin-bottom: 5px;
         border:none;
       }
       button.but{
@@ -41,22 +42,29 @@
         height: auto;
         width: 100%;
       }
-      #box{
+      .box{
         height: 20px;
         background: #DFDFDF;
+      }
+      .sect{
+        margin-bottom: 30px;
       }
     </style>
     
     <script>
       function myFunction(b) {
         var x = document.getElementById("button_text".concat(b.id));
-        var y = document.getElementById("box".concat(b.id));
-        if (y.style.display === "none") {
+        var l = document.getElementsByClassName("box".concat(b.id));
+        if (x.innerHTML === "+") {
           x.innerHTML = "-";
-          y.style.display = "block";
+          for (let i=0; i < l.length; i++) {
+            l[i].style.display = "block";
+          }
         } else {
           x.innerHTML = "+";
-          y.style.display = "none";
+          for (let i=0; i < l.length; i++) {
+            l[i].style.display = "none";
+          }
         }
       }
     </script>
@@ -77,10 +85,10 @@
         <h1>Perfect Number's Theorem</h1>
         <p>
           Manipulate and compile run-time the demonstration for the Perfect Number theorem.
-          Alternative shorter proof available in <a href = "https://github.com/The-busy-man/Perfect-Number-s-Theorem">the repository</a>.
         </p>
         <p>
           Here we follow the original Euler's proof, as shown in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>.
+          Alternative shorter proof available in <a href = "https://github.com/The-busy-man/Perfect-Number-s-Theorem">the repository</a>.
         </p>
 
         <h3>Instructions</h3>
@@ -91,44 +99,43 @@
         </p><p>
           Use <kbd>Alt</kbd>+<kbd>↓</kbd> to run one extra line and <kbd>Alt</kbd>+<kbd>↑</kbd> to run one less.
         </p><p>
-          Hover with <kbd>Ctrl</kbd>+<img class="symbol-mouse" src="./node_modules/jscoq/ui-images/pointer.svg" height="13px"> over an
+          Hover with <kbd>Ctrl</kbd>+ <img class="symbol-mouse" src="./node_modules/jscoq/ui-images/pointer.svg" height="13px"> over an
           executed line to see the proof state in it.
         </p>
         <h3>Proof</h3>
-        <div id="window">
+        <div id="window" class="sect">
           <div id="title_bar">
-            <button class="but" onclick="myFunction(this)" id="1"><span id="button_text1">-</span></button>
+            <button class="but" name="subp_button" onclick="myFunction(this)" id="1"><span id="button_text1">-</span></button>
           <p id="preproof_main">
             We begin by importing the modules and notations we are going to use.
-          </p></div>
-          <div id="box1"><p>
+          </p><p><textarea class="snippet">
+From mathcomp Require Import all_ssreflect.</textarea></p></div>
+          <div class="box1"><p>
         <textarea class="snippet">
-From mathcomp Require Import all_ssreflect.
-
-Set Implicit Arguments.
-Unset Strict Implicit.
-Unset Printing Implicit Defensive.</textarea>
+    Set Implicit Arguments.
+    Unset Strict Implicit.
+    Unset Printing Implicit Defensive.</textarea>
           </p></div>
         </div>
 
-        <div id="window">
+        <div id="window" class="sect">
           <div id="title_bar">
             <button class="but" onclick="myFunction(this)" id="2"><span id="button_text2">-</span></button><p id="preproof_main">
             Before the proof, we're going to need some auxiliary lemmas.
           </p></div>
-          <div id="box2"><p>
+          <div class="box2"><p>
             <div id="window">
               <div id="title_bar">
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.1">
                   <span id="button_text2.1">-</span></button><p id="preproof">
                 Every multiplicative propierty, true over the powers of the prime numbers is true over the
                 natural numbers.
-              </p></div>
-              <div id="box2.1"><p>
-    <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Lemma prime_decomp_ind (P: nat -> Prop) (P0: P 0) (P1: P 1)
-          (Pprime: forall p k, prime p -> k > 0 -> P (p^k))
-          (Pmul: forall a b, P a -> P b -> coprime a b -> (P (a*b))) c: P c.
+            (Pprime: forall p k, prime p -> k > 0 -> P (p^k))
+            (Pmul: forall a b, P a -> P b -> coprime a b -> (P (a*b))) c: P c.</textarea></p></div>
+              <div class="box2.1"><p>
+    <textarea class="snippet">
     Proof.
       apply: (nat_ind (fun n => forall m, m <= n -> P m) _ _ c c (leqnn c))
           => [n | n IHn m mleqn]. by rewrite leqn0 => /eqP ->.
@@ -163,10 +170,11 @@ Lemma prime_decomp_ind (P: nat -> Prop) (P0: P 0) (P1: P 1)
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.2">
                   <span id="button_text2.2">-</span></button><p id="preproof">
                 Greatest common divisor is multiplicative.
-              </p></div>
-              <div id="box2.2"><p>
+              </p><p><textarea class="snippet">
+Proposition gcdnM a b c: (a > 0) -> (coprime a b) ->
+            gcdn (a*b) c = (gcdn a c)*(gcdn b c).</textarea></p></div>
+              <div class="box2.2"><p>
             <textarea class="snippet">
-Proposition gcdnM a b c: (a > 0) -> (coprime a b) -> gcdn (a*b) c = (gcdn a c)*(gcdn b c).
     Proof.
       move => apos cprab.
       apply: (gcdn_def (dvdn_mul (dvdn_gcdl a c) (dvdn_gcdl b c))).
@@ -202,11 +210,11 @@ Proposition gcdnM a b c: (a > 0) -> (coprime a b) -> gcdn (a*b) c = (gcdn a c)*(
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.3">
                   <span id="button_text2.3">-</span></button><p id="preproof">
                 The divisors of the product of coprime numbers.
-              </p></div>
-              <div id="box2.3"><p>
-            <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Lemma div_gcdnE a b c (apos: a > 0): (coprime a b) ->
-                          reflect (c = (gcdn a c)*(gcdn b c)) (c %| a*b).
+            reflect (c = (gcdn a c)*(gcdn b c)) (c %| a*b).</textarea></p></div>
+              <div class="box2.3"><p>
+            <textarea class="snippet">
     Proof.
       move => cprab; apply: Coq.Bool.Bool.iff_reflect.
       split. move => ->.
@@ -222,14 +230,16 @@ Lemma div_gcdnE a b c (apos: a > 0): (coprime a b) ->
                   <span id="button_text2.4">-</span></button><p id="preproof">
                 For a pair of coprime numbers, there is correspondence between the divisors of their product and the pairs of theirs divisors. 
               </p></div>
-              <div id="box2.4"><p>
+              <div class="box2.4"><p>
                 <textarea class="snippet">
 Definition div_pair a b d:= (gcdn a d, gcdn b d).
-Definition div_prod (d: nat*nat):= d.1*d.2.
-
+Definition div_prod (d: nat*nat):= d.1*d.2.</textarea></p></div>
+<p>
+<textarea class="snippet">
 Lemma div2_to_div a b (apos: a > 0) (bpos: b > 0): coprime a b ->
-  map div_prod (allpairs pair (divisors a) (divisors b)) =i
-  divisors (a*b).
+        map div_prod (allpairs pair (divisors a) (divisors b)) =i
+        divisors (a*b).</textarea></p><div class="box2.4"><p>
+<textarea class="snippet">
 Proof.
   rewrite map_allpairs /eq_mem => cprab x.
   case H: (x \in _).
@@ -259,11 +269,11 @@ Qed.</textarea>
               <div id="title_bar">
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.5">
                   <span id="button_text2.5">-</span></button><p id="preproof">
-                Coprimality is invariant under multiplication.
-              </p></div>
-              <div id="box2.5"><p>
+                Coprimality is invariant under division.
+              </p><p><textarea class="snippet">
+Lemma cpr_divl a b c: c%|a -> (coprime a b) -> (coprime c b).</textarea></p></div>
+              <div class="box2.5"><p>
                 <textarea class="snippet">
-Lemma cpr_divl a b c: c%|a -> (coprime a b) -> (coprime c b).
 Proof.
   move => /dvdnP [k cdiva].
   by rewrite cdiva coprimeMl => /andP [_].
@@ -281,11 +291,11 @@ Qed.</textarea>
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.6">
                   <span id="button_text2.6">-</span></button><p id="preproof">
                 Coprime numbers whose principal ideal intersects are equal.
-              </p></div>
-              <div id="box2.6"><p>
-                <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Lemma cpr_mult_projl a b c d: (coprime a d) -> (coprime b c) ->
-                             a*b = c*d -> b = d.
+            a*b = c*d -> b = d.</textarea></p></div>
+              <div class="box2.6"><p>
+                <textarea class="snippet">
 Proof.
   move: a b c d.
   suff H: forall a b c d, (coprime a d) -> (coprime b c) ->
@@ -300,7 +310,7 @@ Proof.
 Qed.
 
 Lemma cpr_mult_projr a b c d: (coprime a d) -> (coprime b c) ->
-                             a*b = c*d -> a = c.
+            a*b = c*d -> a = c.
 Proof.
   move => cprad cprbc.
   by rewrite mulnC [RHS]mulnC; apply: cpr_mult_projl.
@@ -313,12 +323,13 @@ Qed.</textarea>
                   <span id="button_text2.7">-</span></button><p id="preproof">
                 The correspondence between sets of divisors induces a correspondence between lists of divisors
                 (needed as mathcomp works with a list of divisors, not a set).
-              </p></div>
-              <div id="box2.7"><p>
+              </p><p><textarea class="snippet">
+Lemma div2_to_divPerm a b (apos: a > 0) (bpos: b > 0): coprime a b ->
+        perm_eq
+            (map div_prod (allpairs pair (divisors a) (divisors b)))
+            (divisors (a*b)).</textarea></p></div>
+              <div class="box2.7"><p>
                 <textarea class="snippet">
-Lemma div2_to_divPerm a b (apos: a > 0) (bpos: b > 0): coprime a b -> perm_eq
-  (map div_prod (allpairs pair (divisors a) (divisors b)))
-  (divisors (a*b)).
 Proof.
   move => cprab; apply: uniq_perm; last first.
   - exact: div2_to_div.
@@ -342,22 +353,24 @@ Proof.
 Qed.</textarea>
               </p></div>
             </div>
-            <div id="window">
+            <div id="window" style="margin-bottom:50px">
               <div id="title_bar">
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="2.8">
                   <span id="button_text2.8">-</span></button><p id="preproof">
                 The divisors of primes' powers.
               </p></div>
-              <div id="box2.8"><p>
+              <div class="box2.8"><p>
                 <textarea class="snippet">
 Lemma prime_div p k (kgt0: k > 0): prime p -> prime_decomp (p^k) = [:: (p, k)].
 Proof.
   rewrite prime_decompE => primp.
   rewrite (primesX _ kgt0) (primes_prime primp) /=.
   by rewrite pfactorK.
-Qed.
-
-Lemma div_primeX p k: prime p -> divisors (p^k) = [seq p^i | i <- iota 0 k.+1].
+Qed.</textarea></p></div><p>
+  <textarea class="snippet">
+Lemma div_primeX p k: prime p -> divisors (p^k) = [seq p^i | i <- iota 0 k.+1].</textarea></p>
+<div class="box2.8"><p>
+  <textarea class="snippet">
 Proof.
   move => prp.
   apply: (irr_sorted_eq_in (leT := ltn)) => //.
@@ -383,47 +396,47 @@ Qed.</textarea>
           </p></div>
         </div>
 
-        <div id="window">
+        <div id="window" class="sect">
           <div id="title_bar">
             <button class="but" onclick="myFunction(this)" id="3"><span id="button_text3">-</span></button><p id="preproof_main">
             We are now going to work out some results about the dirichlet convolution, the sigma (sum of divisors) function and
             sums in order to prepare the proofs.
           </p></div>
-          <div id="box3"><p>
+          <div class="box3"><p>
             <div id="window">
               <div id="title_bar">
-                <button class="but" onclick="myFunction(this)" id="3.1">
-                  <span id="button_text3.1">-</span></button><p id="preproof">
+                <!-- <button class="but" onclick="myFunction(this)" id="3.1">
+                  <span id="button_text3.1">-</span></button> --><p id="preproof">
                 Definition of multiplicativity:
               </p></div>
-              <div id="box3.1"><p>
+              <div class="box3.1"><p>
                 <textarea class="snippet">
 Definition multiplicative f := forall a b, (coprime a b) -> f (a*b) = (f a)*(f b).</textarea>
               </p></div>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button class="but" onclick="myFunction(this)" id="3.2">
-                  <span id="button_text3.2">-</span></button><p id="preproof">
+                <!-- <button class="but" onclick="myFunction(this)" id="3.2">
+                  <span id="button_text3.2">-</span></button> --><p id="preproof">
                 Definition of Dirichlet's convolution and sigma function.</p><p id="preproof">
                 To avoid working with positive numbers (and having to carry a positivity proof)
                 we define Dirichlet convolution at 0 as 0, to preserve multiplicativity.
               </p></div>
-              <div id="box3.2"><p>
+              <div class="box3.2"><p>
                 <textarea class="snippet">
 Definition dirichlet_conv (f g: nat -> nat) n :=
-  if n > 0 then \sum_ (d <- divisors n) (f d)*(g (n%/d)) else 0.
+            if n > 0 then \sum_ (d <- divisors n) (f d)*(g (n%/d)) else 0.
 
 Definition sigma := dirichlet_conv (fun n => n) (fun n => 1).</textarea>
               </p></div>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button class="but" onclick="myFunction(this)" id="3.3">
-                  <span id="button_text3.3">-</span></button><p id="preproof">
+                <!-- <button class="but" onclick="myFunction(this)" id="3.3">
+                  <span id="button_text3.3">-</span></button> --><p id="preproof">
                 Definition of perfect numbers.
               </p></div>
-              <div id="box3.3"><p>
+              <div class="box3.3"><p>
                 <textarea class="snippet">
 Definition perfect p := sigma p = 2 * p.</textarea>
               </p></div>
@@ -433,11 +446,11 @@ Definition perfect p := sigma p = 2 * p.</textarea>
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="3.4">
                   <span id="button_text3.4">-</span></button><p id="preproof">
                 Dirichlet's convolution and, consequently, sigma are multiplicative.
-              </p></div>
-              <div id="box3.4"><p>
-                <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Theorem dirichletM f g (f_cdt : multiplicative f) (g_cdt : multiplicative g) :
-  (multiplicative (dirichlet_conv f g)).
+            (multiplicative (dirichlet_conv f g)).</textarea></p></div>
+              <div class="box3.4"><p>
+                <textarea class="snippet">
 Proof.
   rewrite /multiplicative /dirichlet_conv => a b cprab.
   case: a cprab => [| a cprab].
@@ -478,10 +491,11 @@ Qed.</textarea>
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="3.5">
                   <span id="button_text3.5">-</span></button><p id="preproof">
                 Caracterization of the Sum of a Geometric progession for non one naturals.
-              </p></div>
-              <div id="box3.5"><p>
+              </p><p><textarea class="snippet">
+Theorem geoSum p n m: (p > 1) ->
+            \sum_(i <- (iota m n)) p^i = (p^(m+n) - p^m)%/(p-1).</textarea></p></div>
+              <div class="box3.5"><p>
                 <textarea class="snippet">
-Theorem geoSum p n m: (p > 1) -> \sum_(i <- (iota m n)) p^i = (p^(m+n) - p^m)%/(p-1).
 Proof.
   elim: n m => [m| n' IHn m pgt1].
     by rewrite unlock addn0 subnn div0n /=.
@@ -501,10 +515,10 @@ Qed.</textarea>
                   <span id="button_text3.6">-</span></button><p id="preproof">
                 Caracterization of sigma function over primes' powers.</p><p id="preproof">
                 We use it to compute value on primes.
-              </p></div>
-              <div id="box3.6"><p>
+              </p><p><textarea class="snippet">
+Proposition sigmaX p n: prime p -> n > 0 -> sigma (p^n) = (p^n.+1-1)%/(p-1).</textarea></p></div>
+              <div class="box3.6"><p>
                 <textarea class="snippet">
-Proposition sigmaX p n: prime p -> n > 0 -> sigma (p^n) = (p^n.+1-1)%/(p-1).
 Proof.
   move => primp npos.
   rewrite /sigma /dirichlet_conv.
@@ -527,10 +541,10 @@ Qed.</textarea>
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="3.7">
                   <span id="button_text3.7">-</span></button><p id="preproof">
                 All elements in a list remain unchanged by the removal of a different element.
-              </p></div>
-              <div id="box3.7"><p>
+              </p><p><textarea class="snippet">
+Lemma remK (T: eqType) (x y: T) s: y != x -> y \in s -> y \in rem x s.</textarea></p></div>
+              <div class="box3.7"><p>
                 <textarea class="snippet">
-Lemma remK (T: eqType) (x y: T) s: y != x -> y \in s -> y \in rem x s.
 Proof.
   elim H: s => [//| z s' IHs].
   move => ynotx yins; rewrite rem_cons.
@@ -548,9 +562,10 @@ Qed.</textarea>
                   <span id="button_text3.8">-</span></button><p id="preproof">
                 Caracteritzation of primality as sigma function acting as the successor.
               </p></div>
-              <div id="box3.8"><p>
+              <div class="box3.8"><p>
                 <textarea class="snippet">
 Proposition sigma_geqn N: N > 1 -> sigma N >= N+1.
+Proof.
   move => Ngt1.
   have Npos: N > 0. exact: (@ltn_trans 1).
   have divNp: N \in divisors N.
@@ -561,9 +576,12 @@ Proposition sigma_geqn N: N > 1 -> sigma N >= N+1.
     by rewrite -dvdn_divisors.
   rewrite /sigma /dirichlet_conv Npos /= (big_rem N) //= (big_rem 1) //= !muln1.
   by rewrite !addnA -{1}[N+1]addn0 leq_add2l.
-Qed.
-
-Proposition sigmapS p: sigma p = p+1 -> prime p.
+Qed.</textarea>
+</p></div><p>
+  <textarea class="snippet">
+Proposition sigmapS p: sigma p = p+1 -> prime p.</textarea></p>
+<div class="box3.8"><p>
+  <textarea class="snippet">
 Proof.
   rewrite /sigma /dirichlet_conv; move => sisp.
   case H: (prime p) => //.
@@ -598,11 +616,11 @@ Qed.</textarea>
                   <span id="button_text3.9">-</span></button><p id="preproof">
                 If a number is the product of two diferent naturals, its sigma function is greater than their sum
                 plus one plus itself.
-              </p></div>
-              <div id="box3.9"><p>
-                <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Proposition sigma_geqdvd p k l: p > 1 -> 1!=l -> 1!=k -> l!=k ->
-                                (k)*(l) = p -> sigma p >= 1+k+l+p.
+            (k)*(l) = p -> sigma p >= 1+k+l+p.</textarea></p></div>
+              <div class="box3.9"><p>
+                <textarea class="snippet">
 Proof.
   move => pgt1; have ppos: p > 0.
     apply: (@ltn_trans 1) => //.
@@ -643,7 +661,7 @@ Qed.</textarea>
                   <span id="button_text3.10">-</span></button><p id="preproof">
                 Prime decomposition of the product of coprimes is the concatenation of their prime decompositions.
               </p></div>
-              <div id="box3.10"><p>
+              <div class="box3.10"><p>
                 <textarea class="snippet">
 Proposition cpr_primesM x y: coprime x y -> (perm_eq (primes (x*y)) ((primes x)++(primes y))).
 Proof.
@@ -657,10 +675,13 @@ Proof.
   - rewrite cat_uniq ?primes_uniq; apply/andP; split => //; apply/andP; split => //.
     rewrite -coprime_has_primes //.
   by rewrite /eq_mem => n; rewrite primesM // mem_cat.
-Qed.
-
+Qed.</textarea>
+</p></div><p>
+  <textarea class="snippet">
 Proposition pdecompM x y: coprime x y ->
-  (perm_eq (prime_decomp (x*y)) ((prime_decomp x) ++ (prime_decomp y))).
+            (perm_eq (prime_decomp (x*y)) ((prime_decomp x) ++ (prime_decomp y))).</textarea></p>
+  <div class="box3.10"><p>
+    <textarea class="snippet">
 Proof.
   move => cprxy; rewrite !prime_decompE.
   suff H: [seq (p, logn p x) | p <- primes x] = [seq (p, logn p (x*y)) | p <- primes x].
@@ -680,11 +701,11 @@ Qed.</textarea>
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="3.11">
                   <span id="button_text3.11">-</span></button><p id="preproof">
                 Caracterization of sigma, using the prime decomposition of a number.
-              </p></div>
-              <div id="box3.11"><p>
-                <textarea class="snippet">
+              </p><p><textarea class="snippet">
 Lemma sigma_pdecomp1 N: N > 0 -> sigma N =
-  \prod_(n <- prime_decomp N) (\sum_(i <- (iota 0 n.2.+1)) n.1^i).
+            \prod_(n <- prime_decomp N) (\sum_(i <- (iota 0 n.2.+1)) n.1^i).</textarea></p></div>
+              <div class="box3.11"><p>
+                <textarea class="snippet">
 Proof.
   move: N; apply: prime_decomp_ind =>
         [//| _| p m primp mpos ppos| x y IHx IHy cprxy xypos].
@@ -700,15 +721,15 @@ Proof.
 Qed.</textarea>
               </p></div>
             </div>
-            <div id="window">
+            <div id="window" style="margin-bottom:50px">
               <div id="title_bar">
                 <button class="but" name="subp_button" onclick="myFunction(this)" id="3.12">
                   <span id="button_text3.12">-</span></button><p id="preproof">
                 The ratio between the value of sigma on the square of a number over the value on the number is greater than identity.
-              </p></div>
-              <div id="box3.12"><p>
+              </p><p><textarea class="snippet">
+Lemma sigma_sqr N: sigma (N*N) >= N*(sigma N).</textarea></p></div>
+              <div class="box3.12"><p>
                 <textarea class="snippet">
-Lemma sigma_sqr N: sigma (N*N) >= N*(sigma N).
 Proof.
   case H: N => [| N']; first by rewrite mul0n /sigma /dirichlet_conv.
   have pdecomp2: forall n, prime_decomp (n*n) = [seq (p.1, 2*(p.2))| p <- (prime_decomp n)].
@@ -740,7 +761,7 @@ Qed.</textarea>
           </p></div>
         </div>
 
-        <p id="preproof_main">
+        <div class="sect"><p id="preproof_main">
           Euclid theorem on perfect numbers.
         </p>
         <textarea class="snippet">
@@ -763,9 +784,9 @@ Proof.
     by rewrite H expn1 subn1 /= in primp; move: (prime_gt1 primp).
   rewrite !subn1 !addn1 divn1 !prednK //=; last by rewrite expn_gt0.
   by rewrite {2}expnS mulnC mulnA.
-Qed.</textarea>
+Qed.</textarea></div>
 
-        <p id="preproof_main">
+        <div class="sect"><p id="preproof_main">
           Euler's Theorem on perfect numbers.
           Can be found in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>,
           page 19.
@@ -808,8 +829,8 @@ Proof.
     by apply: sigmapS => //; rewrite perp3.
   suff sgeqsum: s >= 1 + (2^n-1) + q + m.
     move: sgeqsum mpos;
-    rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 // subnn add0n.
-    by rewrite mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->; rewrite sub0n mul0n.
+    rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 //.
+    by rewrite subnn add0n mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->.
   rewrite /s sigma_geqdvd //.
   - case _1ltm: (1 < m) => //; move: _1ltm => /negP /negP; rewrite -leqNgt.
     rewrite leq_eqVlt => /orP [/eqP mis1|].
@@ -842,8 +863,12 @@ Proof.
     rewrite subnn add0n -{2}[(2 ^ n - 1) * 2 ^ n](add0n) => /eqP.
     by rewrite eqn_add2r.
   rewrite -{1}(muln1 (2^n-1)) leq_pmul2l ?expn_gt0 //; exact: (@ltn_trans 1).
-Qed.</textarea>
-      </p></div>
+Qed.</textarea></div>
+      </p>
+      <p style="font-size: 13px">
+        College Thesis of Raül Espejo Boix for Universitat Autònoma de Barcelona.
+      </p>
+      </div>
     </div>
   </div>
 
