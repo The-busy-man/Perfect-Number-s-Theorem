@@ -1,3 +1,5 @@
+(*College Thesis of Raül Espejo Boix for Universitat Autònoma de Barcelona*)
+
 From mathcomp Require Import all_ssreflect.
 
 Set Implicit Arguments.
@@ -17,9 +19,9 @@ Proof.
   have ngt1: 1 < n.+2 by rewrite ltnS.
   have npos: 0 < n.+2 by [].
   have logpos: (0 < logn (pdiv n.+2) n.+2).
-    rewrite logn_gt0 mem_primes; apply/andP; split; last (apply/andP; split) => //.
+    rewrite logn_gt0 mem_primes; apply/andP; split.
       by apply: pdiv_prime; rewrite ltnS.
-    by rewrite pdiv_dvd.
+    by (apply/andP; split); rewrite // pdiv_dvd.
   move: (pdiv_prime ngt1) => prdvd.
   move: (pfactor_coprime (pdiv_prime ngt1) npos) => [m cprnm npart].
   rewrite npart; apply: Pmul.
@@ -35,29 +37,31 @@ Proof.
   by apply: coprimeXr; rewrite coprime_sym.
 Qed.
 
-Proposition gcdnM a b c: (a > 0) -> (coprime a b) -> gcdn (a*b) c = (gcdn a c)*(gcdn b c).
+Proposition gcdnM a b c: (a > 0) -> (coprime a b) ->
+    gcdn (a*b) c = (gcdn a c)*(gcdn b c).
 Proof.
   move => apos cprab.
   apply: (gcdn_def (dvdn_mul (dvdn_gcdl a c) (dvdn_gcdl b c))).
     rewrite Gauss_dvd. by rewrite (dvdn_gcdr a c) (dvdn_gcdr b c).
     by rewrite /coprime gcdnACA (eqP cprab) gcd1n.
-  case cpos: (c > 0); last first.
-    by move: cpos; rewrite ltnNge => /negbFE; rewrite leqn0 => /eqP ->; rewrite !gcdn0.
+  case cpos: (c > 0); last first. move: cpos; rewrite ltnNge => /negbFE.
+    by rewrite leqn0 => /eqP ->; rewrite !gcdn0.
   apply: prime_decomp_ind => [| //| p k pprim| a' b' IHa IHb cprab' divab divc].
   - rewrite !dvd0n muln_eq0 => /orP [/eqP ->| /eqP ->] /eqP -> //.
     by rewrite mulnC.
   - case: k => [//| k kpos].
     move: (dvdn_exp2l p (ltn0Sn k)).
     rewrite expn1 => pdivp pkdivab.
-    have H: forall a b, coprime a b -> p ^ k.+1 %| a * b -> p %| a -> p ^ k.+1 %| a.
+    have H: forall a b, coprime a b ->
+        p ^ k.+1 %| a * b -> p %| a -> p ^ k.+1 %| a.
       move => a' b' cprab' pkdivab' pdiva'. rewrite -(@Gauss_dvdl _ _ b') //.
       apply: coprimeXl; move: pdiva' => /dvdnP [q aisqp'].
       by move: cprab'; rewrite aisqp' coprimeMl => /andP /proj2.
     move: (Euclid_dvdM) (dvdn_trans pdivp pkdivab)
         => -> => [/orP [/(H a b cprab pkdivab) pdiva| pdivb] pdivc| //].
       by apply: dvdn_mulr; rewrite dvdn_gcd; apply/andP; split.
-    apply: dvdn_mull.
-    move: pdivb => /(H b a); rewrite coprime_sym mulnC => /(_ cprab pkdivab) pdivb.
+    apply: dvdn_mull; move: pdivb => /(H b a).
+    rewrite coprime_sym mulnC => /(_ cprab pkdivab) pdivb.
     by rewrite dvdn_gcd; apply/andP; split.
   rewrite Gauss_dvd // (IHa (dvdn_trans (dvdn_mulr _ _) divab)
                             (dvdn_trans (dvdn_mulr _ _) divc)) //.
@@ -66,7 +70,7 @@ Proof.
 Qed.
 
 Lemma div_gcdnE a b c (apos: a > 0): (coprime a b) ->
-                      reflect (c = (gcdn a c)*(gcdn b c)) (c %| a*b).
+    reflect (c = (gcdn a c)*(gcdn b c)) (c %| a*b).
 Proof.
   move => cprab; apply: Coq.Bool.Bool.iff_reflect.
   split. move => ->.
@@ -79,8 +83,8 @@ Definition div_pair a b d:= (gcdn a d, gcdn b d).
 Definition div_prod (d: nat*nat):= d.1*d.2.
 
 Lemma div2_to_div a b (apos: a > 0) (bpos: b > 0): coprime a b ->
-  map div_prod (allpairs pair (divisors a) (divisors b)) =i
-  divisors (a*b).
+    map div_prod (allpairs pair (divisors a) (divisors b)) =i
+    divisors (a*b).
 Proof.
   rewrite map_allpairs /eq_mem => cprab x.
   case H: (x \in _).
@@ -118,7 +122,7 @@ Proof.
 Qed.
 
 Lemma cpr_mult_projl a b c d: (coprime a d) -> (coprime b c) ->
-                             a*b = c*d -> b = d.
+    a*b = c*d -> b = d.
 Proof.
   move: a b c d.
   suff H: forall a b c d, (coprime a d) -> (coprime b c) ->
@@ -133,15 +137,16 @@ Proof.
 Qed.
 
 Lemma cpr_mult_projr a b c d: (coprime a d) -> (coprime b c) ->
-                             a*b = c*d -> a = c.
+    a*b = c*d -> a = c.
 Proof.
   move => cprad cprbc.
   by rewrite mulnC [RHS]mulnC; apply: cpr_mult_projl.
 Qed.
 
-Lemma div2_to_divPerm a b (apos: a > 0) (bpos: b > 0): coprime a b -> perm_eq
-  (map div_prod (allpairs pair (divisors a) (divisors b)))
-  (divisors (a*b)).
+Lemma div2_to_divPerm a b (apos: a > 0) (bpos: b > 0): coprime a b ->
+    perm_eq
+        (map div_prod (allpairs pair (divisors a) (divisors b)))
+        (divisors (a*b)).
 Proof.
   move => cprab; apply: uniq_perm; last first.
   - exact: div2_to_div.
@@ -164,14 +169,16 @@ Proof.
   by rewrite coprime_sym.
 Qed.
 
-Lemma prime_div p k (kgt0: k > 0): prime p -> prime_decomp (p^k) = [:: (p, k)].
+Lemma prime_div p k (kgt0: k > 0): prime p ->
+    prime_decomp (p^k) = [:: (p, k)].
 Proof.
   rewrite prime_decompE => primp.
   rewrite (primesX _ kgt0) (primes_prime primp) /=.
   by rewrite pfactorK.
 Qed.
 
-Lemma div_primeX p k: prime p -> divisors (p^k) = [seq p^i | i <- iota 0 k.+1].
+Lemma div_primeX p k: prime p ->
+    divisors (p^k) = [seq p^i | i <- iota 0 k.+1].
 Proof.
   move => prp.
   apply: (irr_sorted_eq_in (leT := ltn)) => //.
@@ -183,8 +190,8 @@ Proof.
     move: iinSk; case: i => [| i].
       rewrite /= nth0. by case: k.
     rewrite size_iota => iinSk; repeat (rewrite nth_iota //=).
-    by apply (ltn_trans (ltnSn _)).
-  rewrite /eq_mem => x; rewrite -dvdn_divisors; last by rewrite expn_gt0 prime_gt0.
+    by apply (ltn_trans (ltnSn _)). rewrite /eq_mem => x.
+  rewrite -dvdn_divisors; last by rewrite expn_gt0 prime_gt0.
   apply/dvdn_pfactor => //. case H: (x \in _).
     move: H => /mapP [z zinSSk xispz]; exists z => //.
     by rewrite mem_iota in zinSSk.
@@ -193,49 +200,51 @@ Proof.
   by exists z => //; rewrite mem_iota.
 Qed.
 
-Definition multiplicative f := forall a b, (coprime a b) -> f (a*b) = (f a)*(f b).
+Definition multiplicative f := forall a b, (coprime a b) ->
+    f (a*b) = (f a)*(f b).
 Definition dirichlet_conv (f g: nat -> nat) n :=
-  if n > 0 then \sum_ (d <- divisors n) (f d)*(g (n%/d)) else 0.
+    if n > 0 then \sum_(d <- divisors n) (f d)*(g (n%/d)) else 0.
   (* Definit al 0 com 0 per a mantenir les propietats desitjades*)
 
 Definition sigma := dirichlet_conv (fun n => n) (fun n => 1).
 Definition perfect p := sigma p = 2 * p.
 Definition mersenne p := (prime p)/\(exists k, p = 2^k - 1).
 
-Definition divisors_n1 p := behead (divisors p).
-Definition divisors_n1p p := behead (belast 0 (divisors_n1 p)).
-
 Theorem dirichletM f g (f_cdt : multiplicative f) (g_cdt : multiplicative g) :
-  (multiplicative (dirichlet_conv f g)).
+    (multiplicative (dirichlet_conv f g)).
 Proof.
   rewrite /multiplicative /dirichlet_conv => a b cprab.
   case: a cprab => [| a cprab].
     by rewrite /coprime gcd0n mul0n /divisors => /eqP ->; rewrite mul0n.
   case: b cprab => [| b cprab].
     by rewrite /coprime gcdn0 muln0 /divisors => /eqP ->; rewrite muln0.
-  rewrite (perm_big (map div_prod (allpairs pair (divisors a.+1) (divisors b.+1))));
+  rewrite (perm_big
+      (map div_prod (allpairs pair (divisors a.+1) (divisors b.+1))));
     last (rewrite perm_sym; apply div2_to_divPerm => //=).
-  rewrite muln_gt0 /=.
-  rewrite map_allpairs /div_prod big_allpairs_dep /=.
-  rewrite (eq_big_seq (fun i1 =>
-    \sum_(i2 <- divisors b.+1) (f i1) * g (a.+1 %/ i1) * ((f i2) * (g (b.+1 %/ i2)))));
+  rewrite muln_gt0 /= map_allpairs /div_prod big_allpairs_dep /=.
+  rewrite (eq_big_seq (fun i1 => \sum_(i2 <- divisors b.+1)
+      (f i1) * g (a.+1 %/ i1) * ((f i2) * (g (b.+1 %/ i2)))));
     last first. move => i; rewrite -(dvdn_divisors _ (ltn0Sn a)) => idiva.
-    rewrite (eq_big_seq (fun i2 => f i * g (a.+1 %/ i) * (f i2 * g (b.+1 %/ i2)))) => //;
-    last first. move => j; rewrite -(dvdn_divisors _ (ltn0Sn b)) => jdivb.
+    rewrite (eq_big_seq
+      (fun i2 => f i * g (a.+1 %/ i) * (f i2 * g (b.+1 %/ i2)))) => //.
+    move => j; rewrite -(dvdn_divisors _ (ltn0Sn b)) => jdivb.
     rewrite f_cdt.
-      rewrite divnMA -divn_mulAC //.
-      rewrite -muln_divA //.
-      rewrite g_cdt.
+      rewrite divnMA -divn_mulAC // -muln_divA // g_cdt.
         by rewrite mulnA [f i * f j * g (a.+1 %/ i)]mulnC
-                     mulnA [g (a.+1 %/ i) * f i]mulnC -mulnA.
-      apply: (@proj1 _ (coprime i (b.+1%/j))); apply/andP; rewrite -coprimeMl divnK //.
-      apply: (@proj1 _ (coprime a.+1 j)); apply/andP; rewrite -coprimeMr divnK => //.
-    apply: (@proj2 (coprime (a.+1%/i) j) _); apply/andP; rewrite -coprimeMl divnK //.
-    apply: (@proj2 (coprime a.+1 (b.+1%/j)) _); apply/andP; rewrite -coprimeMr divnK => //.
+            mulnA [g (a.+1 %/ i) * f i]mulnC -mulnA.
+      apply: (@proj1 _ (coprime i (b.+1%/j))). apply/andP.
+      rewrite -coprimeMl divnK //.
+      apply: (@proj1 _ (coprime a.+1 j)). apply/andP.
+      by rewrite -coprimeMr divnK.
+    apply: (@proj2 (coprime (a.+1%/i) j) _). apply/andP.
+    rewrite -coprimeMl divnK //.
+    apply: (@proj2 (coprime a.+1 (b.+1%/j)) _). apply/andP.
+    by rewrite -coprimeMr divnK.
   by rewrite -big_distrlr.
 Qed.
 
-Theorem geoSum p n m: (p > 1) -> \sum_(i <- (iota m n)) p^i = (p^(m+n) - p^m)%/(p-1).
+Theorem geoSum p n m: (p > 1) ->
+    \sum_(i <- (iota m n)) p^i = (p^(m+n) - p^m)%/(p-1).
 Proof.
   elim: n m => [m| n' IHn m pgt1].
     by rewrite unlock addn0 subnn div0n /=.
@@ -254,7 +263,8 @@ Proof.
   by rewrite dirichletM.
 Qed.
 
-Proposition sigmaX p n: prime p -> n > 0 -> sigma (p^n) = (p^n.+1-1)%/(p-1).
+Proposition sigmaX p n: prime p -> n > 0 ->
+    sigma (p^n) = (p^n.+1-1)%/(p-1).
 Proof.
   move => primp npos.
   rewrite /sigma /dirichlet_conv.
@@ -267,8 +277,8 @@ Qed.
 
 Corollary sigmaX1 p: prime p -> sigma p = p+1.
 Proof.
-  move => primp.
-  by rewrite -{1}[p]expn1 sigmaX // -{2}(exp1n 2) subn_sqr mulKn // subn_gt0 prime_gt1.
+  move => primp; rewrite -{1}[p]expn1 sigmaX //.
+  by rewrite -{2}(exp1n 2) subn_sqr mulKn // subn_gt0 prime_gt1.
 Qed.
 
 Lemma remK (T: eqType) (x y: T) s: y != x -> y \in s -> y \in rem x s.
@@ -283,6 +293,7 @@ Proof.
 Qed.
 
 Proposition sigma_geqn N: N > 1 -> sigma N >= N+1.
+Proof.
   move => Ngt1.
   have Npos: N > 0. exact: (@ltn_trans 1).
   have divNp: N \in divisors N.
@@ -291,8 +302,8 @@ Proposition sigma_geqn N: N > 1 -> sigma N >= N+1.
     apply: remK.
       by rewrite ltn_eqF.
     by rewrite -dvdn_divisors.
-  rewrite /sigma /dirichlet_conv Npos /= (big_rem N) //= (big_rem 1) //= !muln1.
-  by rewrite !addnA -{1}[N+1]addn0 leq_add2l.
+  rewrite /sigma /dirichlet_conv Npos /= (big_rem N) //= (big_rem 1) //=.
+  by rewrite !muln1 !addnA -{1}[N+1]addn0 leq_add2l.
 Qed.
 
 Proposition sigmapS p: sigma p = p+1 -> prime p.
@@ -311,28 +322,29 @@ Proof.
   move: (dvdnn p); rewrite dvdn_divisors // => pdvdp.
   move: (dvd1n p); rewrite dvdn_divisors // => _1dvdp.
   have pdvdp2: p \in rem d (divisors p).
-    by apply: remK => //; move: dltp => /andP /proj2 /ltn_eqF; rewrite eq_sym => /negP /negP.
+    apply: remK => //; move: dltp => /andP /proj2 /ltn_eqF.
+    by rewrite eq_sym => /negP /negP.
   have _1dvdp2: 1 \in rem p (rem d (divisors p)).
-    apply: remK => //; move: (dltp) => /andP /(and_ind (@ltn_trans d 1 p)) /ltn_eqF;
-      rewrite eq_sym => /negP /negP // _.
+    apply: remK => //. move: (dltp) => /andP /(and_ind (@ltn_trans d 1 p))
+      /ltn_eqF. rewrite eq_sym => /negP /negP // _.
     by apply: remK => //; move: (dltp) => /andP /proj1 /ltn_eqF /negP /negP.
-  move: sisp; rewrite (big_rem _ ddvdp) (big_rem _ pdvdp2) (big_rem _ _1dvdp2) ppos /=.
-  rewrite !muln1 [p+_]addnA [(p+1)+_]addnC addnA -{2}(add0n (p+1)) => /eqP.
-  rewrite (eqn_add2r (p+1)) => sum0.
+  move: sisp; rewrite (big_rem _ ddvdp) (big_rem _ pdvdp2) (big_rem _ _1dvdp2).
+  rewrite ppos /= !muln1 [p+_]addnA [(p+1)+_]addnC addnA -{2}(add0n (p+1)).
+  move/eqP; rewrite (eqn_add2r (p+1)) => sum0.
   move: (leq_addr (\sum_(y <- rem 1 (rem p (rem d (divisors p)))) y * 1) d).
   by rewrite (eqP sum0) leqn0 => /eqP dis0; rewrite dis0 in dltp.
 Qed.
 
 Proposition sigma_geqdvd p k l: p > 1 -> 1!=l -> 1!=k -> l!=k ->
-                                (k)*(l) = p -> sigma p >= 1+k+l+p.
+    (k)*(l) = p -> sigma p >= 1+k+l+p.
 Proof.
   move => pgt1; have ppos: p > 0.
     apply: (@ltn_trans 1) => //.
   move => lisn1 kisn1 kisnl klisp.
-  have kdivp: k \in divisors p.
-    by rewrite -dvdn_divisors //; apply/dvdnP; apply: (ex_intro _ l); rewrite mulnC.
-  have ldivp: l \in rem k (divisors p).
-    by apply: remK => //; rewrite -dvdn_divisors //; apply/dvdnP; apply: (ex_intro _ k).
+  have kdivp: k \in divisors p. rewrite -dvdn_divisors //; apply/dvdnP.
+    by apply: (ex_intro _ l); rewrite mulnC.
+  have ldivp: l \in rem k (divisors p). apply: remK => //.
+    rewrite -dvdn_divisors //. apply/dvdnP. exact: (ex_intro _ k).
   have pdvip: p \in rem l (rem k (divisors p)).
     apply: remK.
       case lisp: (p != l) => //; move: lisp (klisp) => /negP /negP /eqP ->.
@@ -352,26 +364,14 @@ Proof.
   have _1dvip: 1 \in rem p (rem l (rem k (divisors p))).
     apply: remK. apply/negPf; apply: ltn_eqF => //.
     apply: remK => //. apply remK => //.
-    by rewrite -dvdn_divisors //.
-  rewrite /sigma /dirichlet_conv ppos.
-  rewrite (big_rem k) //= (big_rem l) //= (big_rem p) //= (big_rem 1) //=.
-  rewrite !muln1 !addnA -[_+l]addnA -[_+p]addnA [1+_]addnC -{1}[_+_+_+_]addn0 leq_add2l //.
+    by rewrite -dvdn_divisors.
+  rewrite /sigma /dirichlet_conv ppos (big_rem k) //= (big_rem l) //=.
+  rewrite (big_rem p) //= (big_rem 1) //= !muln1 !addnA -[_+l]addnA.
+  by rewrite -[_+p]addnA [1+_]addnC -{1}[_+_+_+_]addn0 leq_add2l.
 Qed.
 
-Lemma arith_leqgeo x y: x > 1 -> y > 1 -> x+y <= x*y.
-Proof.
-  move => leq1x leq0y; rewrite -(@leq_subRL x).
-    rewrite (@leq_trans (2*y-2)) //; last first.
-      by rewrite -{2}(muln1 x) -{2}(muln1 2) -!mulnBr leq_pmul2r // subn_gt0.
-    rewrite (@leq_subRL 2); last first.
-      by rewrite (@ltn_trans y) // -{1}(mul1n y) ltn_pmul2r // (@ltn_trans 1).
-    rewrite addnC -(@leq_subRL y); last first.
-      by rewrite (@leq_trans y) // -{1}(mul1n y) leq_pmul2r // (@ltn_trans 1).
-    by rewrite -{2}(mul1n y) -mulnBl /subn /= mul1n.
-  by rewrite -{1}(muln1 x) leq_pmul2l // (@ltn_trans 1).
-Qed.
-
-Proposition cpr_primesM x y: coprime x y -> (perm_eq (primes (x*y)) ((primes x)++(primes y))).
+Proposition cpr_primesM x y: coprime x y ->
+    (perm_eq (primes (x*y)) ((primes x)++(primes y))).
 Proof.
   case xisx: x => [|x'].
     by rewrite /coprime gcd0n => /eqP ->.
@@ -380,8 +380,8 @@ Proof.
   move => cprxy.
   apply: uniq_perm.
   - by rewrite primes_uniq.
-  - rewrite cat_uniq ?primes_uniq; apply/andP; split => //; apply/andP; split => //.
-    rewrite -coprime_has_primes //.
+  - rewrite cat_uniq ?primes_uniq; apply/andP; split => //.
+    by apply/andP; split => //; rewrite -coprime_has_primes.
   by rewrite /eq_mem => n; rewrite primesM // mem_cat.
 Qed.
 
@@ -389,11 +389,14 @@ Proposition pdecompM x y: coprime x y ->
   (perm_eq (prime_decomp (x*y)) ((prime_decomp x) ++ (prime_decomp y))).
 Proof.
   move => cprxy; rewrite !prime_decompE.
-  suff H: [seq (p, logn p x) | p <- primes x] = [seq (p, logn p (x*y)) | p <- primes x].
-    suff H2: [seq (p, logn p y) | p <- primes y] = [seq (p, logn p (x*y)) | p <- primes y].
+  suff H: [seq (p, logn p x) | p <- primes x] =
+      [seq (p, logn p (x*y)) | p <- primes x].
+    suff H2: [seq (p, logn p y) | p <- primes y] =
+        [seq (p, logn p (x*y)) | p <- primes y].
       by rewrite H H2 -map_cat perm_map // cpr_primesM.
-    apply eq_in_map; rewrite /eqfun => n nprx; rewrite logn_Gauss // coprime_sym.
-    move: nprx; rewrite mem_primes => /andP [primn /andP [ypos ndivy]].
+    apply eq_in_map; rewrite /eqfun => n nprx.
+    rewrite logn_Gauss // coprime_sym. move: nprx.
+    rewrite mem_primes => /andP [primn /andP [ypos ndivy]].
     by rewrite (@coprime_dvdr n y x).
   apply eq_in_map; rewrite /eqfun => n npry; rewrite mulnC logn_Gauss //.
   move: npry; rewrite mem_primes => /andP [primn /andP [ypos ndivy]].
@@ -406,40 +409,49 @@ Proof.
   move: N; apply: prime_decomp_ind =>
         [//| _| p m primp mpos ppos| x y IHx IHy cprxy xypos].
   - by rewrite /sigma /dirichlet_conv unlock /=.
-  - rewrite sigmaX // prime_div // (lock iota) {1}unlock /= muln1; unlock locked.
-    by rewrite geoSum ?prime_gt1 //.
+  - rewrite sigmaX // prime_div // (lock iota) {1}unlock /= muln1.
+    by unlock locked; rewrite geoSum ?prime_gt1.
   move: xypos; rewrite muln_gt0 => /andP [xpos ypos]; rewrite sigmaM //.
-    (*Semblen haver-hi molts pocs resultats de prime_decomp a mathcomp*)
   rewrite IHx // IHy //.
-  rewrite [\prod_(n <- prime_decomp (x * y)) (\sum_(i <- iota 0 n.2.+1) n.1 ^ i)]
-          (perm_big ((prime_decomp x) ++ (prime_decomp y))). by rewrite big_cat /=.
-  by apply pdecompM.
+  rewrite [\prod_(n <- prime_decomp (x * y))
+      (\sum_(i <- iota 0 n.2.+1) n.1 ^ i)]
+          (perm_big ((prime_decomp x) ++ (prime_decomp y))) ?big_cat //=.
+  exact: pdecompM.
 Qed.
 
 Lemma sigma_sqr N: sigma (N*N) >= N*(sigma N).
 Proof.
   case H: N => [| N']; first by rewrite mul0n /sigma /dirichlet_conv.
-  have pdecomp2: forall n, prime_decomp (n*n) = [seq (p.1, 2*(p.2))| p <- (prime_decomp n)].
+  have pdecomp2: forall n,
+      prime_decomp (n*n) = [seq (p.1, 2*(p.2))| p <- (prime_decomp n)].
     move => n; rewrite !prime_decompE -map_comp /comp /= mulnn primesX //.
     by apply eq_in_map => [x xprimn]; rewrite lognX.
   rewrite (@sigma_pdecomp1 (N'.+1*N'.+1)) // pdecomp2 big_seq.
-  rewrite (eq_bigr (fun n => (\sum_(i <- iota 0 (n.2%/2)) n.1 ^ i)+(\sum_(i <- iota (n.2%/2) (n.2%/2).+1) n.1 ^ i))); last first.
+  rewrite (eq_bigr (fun n => (\sum_(i <- iota 0 (n.2%/2)) n.1 ^ i)+
+      (\sum_(i <- iota (n.2%/2) (n.2%/2).+1) n.1 ^ i))); last first.
     move => n /mapP [x xprimN xisn].
-    rewrite (f_equal snd xisn) mulKn // -(big_cat) -iotaD (lock iota).
-    by rewrite mul2n -addnn addnS.
-  apply: (@leq_trans (\prod_(i <- [seq (p.1, 2 * p.2) | p <- prime_decomp N'.+1] | i \in [seq (p.1, 2 * p.2) | p <- prime_decomp N'.+1]) (i.1^(i.2%/2)*\sum_(i0 <- iota 0 (i.2 %/ 2).+1) i.1 ^ i0))).
+    rewrite (f_equal snd xisn) mulKn //.
+    by rewrite -(big_cat) -iotaD (lock iota) mul2n -addnn addnS.
+  apply: (@leq_trans (\prod_
+      (i <- [seq (p.1, 2 * p.2) | p <- prime_decomp N'.+1] |
+      i \in [seq (p.1, 2 * p.2) | p <- prime_decomp N'.+1])
+          (i.1^(i.2%/2)*\sum_(i0 <- iota 0 (i.2 %/ 2).+1) i.1 ^ i0))).
     rewrite big_split (lock iota) /= -!big_seq. rewrite !big_map.
     rewrite (eq_bigr (fun n => n.1^n.2)).
-      rewrite [\prod_(j <- prime_decomp N'.+1) (\sum_(i0 <- locked iota 0 ((j.1, 2 * j.2).2 %/ 2).+1) (j.1, 2 * j.2).1 ^ i0)]
-            (eq_bigr (fun n => \sum_(i0 <- locked iota 0 (n.2.+1)) n.1 ^ i0)). unlock locked.
-      by rewrite {1}(@prod_prime_decomp N'.+1) // sigma_pdecomp1.
+      rewrite [\prod_(j <- prime_decomp N'.+1)
+          (\sum_(i0 <- locked iota 0
+              ((j.1, 2 * j.2).2 %/ 2).+1) (j.1, 2 * j.2).1 ^ i0)]
+              (eq_bigr (fun n =>
+                  \sum_(i0 <- locked iota 0 (n.2.+1)) n.1 ^ i0)).
+      by unlock locked; rewrite {1}(@prod_prime_decomp N'.+1) // sigma_pdecomp1.
       by move => n _; unlock locked; apply: congr_big => //; rewrite /= mulKn.
     by move => n _; rewrite /= mulKn.
   rewrite (big_ind2 leq) //. by move => a b c d aleqb cleqd; rewrite leq_mul.
   move => n /mapP [x xprimN xisn].
-  rewrite (lock iota) !xisn mulKn //= -(add0n (_ ^ _ * _)) leq_add //. unlock locked.
-  rewrite -{3}(add0n x.2) addnC iotaDl big_map
-              [\sum_(j <- iota 0 x.2.+1) x.1 ^ (x.2 + j)](eq_bigr (fun j => x.1^x.2*x.1^j)).
+  rewrite (lock iota) !xisn mulKn //= -(add0n (_ ^ _ * _)) leq_add //.
+  unlock locked. rewrite -{3}(add0n x.2) addnC iotaDl big_map
+      [\sum_(j <- iota 0 x.2.+1) x.1 ^ (x.2 + j)]
+      (eq_bigr (fun j => x.1^x.2*x.1^j)).
     by rewrite -big_distrr.
   by move => i _; rewrite expnD.
 Qed.
@@ -450,13 +462,12 @@ Proof.
     by rewrite expn0 subnn; move /prime_gt0.
   rewrite /perfect => primp.
   rewrite sigmaM; last first.
-    rewrite coprime_sym prime_coprime // Euclid_dvdX //.
-    rewrite negb_and.
+    rewrite coprime_sym prime_coprime // Euclid_dvdX // negb_and.
     case: p' => [| p'] in primp pisp *; first by rewrite subnn.
     apply /orP; left; rewrite gtnNdvd //.
     rewrite -iter_predn expnS /= -ltnS prednK expnS mulnA.
-      rewrite -(muln1 4) {3}/muln /= leq_pmul2l // expn_gt0 //.
-    by rewrite -{1}(muln0 4) {3}/muln /= (ltn_mul2l 4) /= expn_gt0 //.
+      by rewrite -(muln1 4) {3}/muln /= leq_pmul2l // expn_gt0.
+    by rewrite -{1}(muln0 4) {3}/muln /= (ltn_mul2l 4) /= expn_gt0.
   rewrite (@sigmaX1 (2 ^ p'.+1 - 1)) // sigmaX //=; last first.
     rewrite subn_gt0 ltnS; case H: (0 < p') => [//| ].
     move/negP: H => /negP; rewrite -eqn0Ngt => /eqP H.
@@ -493,6 +504,8 @@ Proof.
   move: (perp2); rewrite [_*m]mulnC sisq mulnA => /eqP; rewrite eqn_pmul2r;
     last by rewrite expn_gt0.
   move => /eqP perp3.
+  have lt12n: 1 < 2^n-1.
+      by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
   case qis1: (q == 1).
     rewrite (eqP qis1) muln1 in perp3.
     rewrite (eqP qis1) mul1n /s -[_^n](@subnK 1) ?expn_gt0 // perp3 in sisq.
@@ -500,32 +513,31 @@ Proof.
     by apply: sigmapS => //; rewrite perp3.
   suff sgeqsum: s >= 1 + (2^n-1) + q + m.
     move: sgeqsum mpos;
-    rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 // subnn add0n.
-    by rewrite mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->; rewrite sub0n mul0n.
+    rewrite -perp3 -{1}[q]mul1n -addnA -mulnDl !addnABC ?expn_gt0 //.
+    by rewrite subnn add0n mulnC -(add0n s) sisq leq_add2r leqn0 => /eqP ->.
   rewrite /s sigma_geqdvd //.
   - case _1ltm: (1 < m) => //; move: _1ltm => /negP /negP; rewrite -leqNgt.
-    rewrite leq_eqVlt => /orP [/eqP mis1|].
-      by move: perp3 => /eqP; rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
+    rewrite leq_eqVlt => /orP [/eqP mis1|]. move: perp3 => /eqP.
+      by rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
     by rewrite ltnS leqn0 => /eqP => mis0; rewrite mis0 in mpos.
   - by move: qis1; rewrite eq_sym => /negP/negP.
-  - case _1is2n: (1 == 2^n - 1) => //=; move: _1is2n.
-    rewrite subn1 -eqSS prednK ?expn_gt0 // -{1}(expn1 2) eqn_exp2l // => /eqP eq1n.
-    by rewrite -eq1n expn0 mul1n in pfac; rewrite -pfac prime_coprime ?peven in cpr2m.
+  - by rewrite (ltn_eqF lt12n).
   case qis2n: (q == 2^n-1) => //=.
          (*A la demo original l'hi faltava demostrar aquesta part*)
   move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
-  have lt12n: 1 < 2^n-1.
-    by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
-  move: (sigma_sqr (2 ^ n - 1)); rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
+  move: (sigma_sqr (2 ^ n - 1)).
+  rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
   move => nH2; case H: (n <= 1) => //; move: H.
     case H2: (n > 0) => // /(conj H2) /andP; rewrite -eqn_leq => /eqP => H.
     rewrite -H /sigma /dirichlet_conv unlock /= in nH.
     by rewrite expn1 muln1 addn0 subn1 /= mul1n in nH.
   move: (sigma_geqn lt12n) => nH3.
   move: (conj (leq_trans nH2 (leqSpred (2^n))) nH3).
-  rewrite -subn1 -[(_-_).+1]addn1 => /andP; rewrite -eqn_leq => /eqP /sigmapS nH4.
-  move: nH; rewrite mulnn sigmaX // -[3]addn1 -{5}(expn0 (2^n-1)) -geoSum //.
-  rewrite unlock /= expnS expnS expn0 addn0 mulnBr mulnBl mul1n muln1 addnABC //.
+  rewrite -subn1 -[(_-_).+1]addn1 => /andP.
+  rewrite -eqn_leq => /eqP /sigmapS nH4; move: nH.
+  rewrite mulnn sigmaX // -[3]addn1 -{5}(expn0 (2^n-1)) -geoSum //.
+  rewrite unlock /= expnS expnS expn0 addn0.
+  rewrite mulnBr mulnBl mul1n muln1 addnABC //.
     rewrite subnn add0n -{2}[(2 ^ n - 1) * 2 ^ n](add0n) => /eqP.
     by rewrite eqn_add2r.
   rewrite -{1}(muln1 (2^n-1)) leq_pmul2l ?expn_gt0 //; exact: (@ltn_trans 1).
