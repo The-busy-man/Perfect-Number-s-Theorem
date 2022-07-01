@@ -2,11 +2,24 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <link rel="stylesheet" type="text/css" href="/node_modules/jscoq/ui-css/kbd.css">
     <style>
       #preproof{
+        margin-bottom: -7px;
         width: 95%;
         position:relative;
         left:35px;
+        /* background: #efe69a; */
+      }
+      #preproof_main{
+        font-size: 17px;
+        margin-top: 25px;
+        width: 95%;
+        position:relative;
+        left:35px;
+        background: #fce3c8;
+        /* background: #fcd2a2; */
+        color:#340e00 ;
       }
       #midproof{
         width: 90%;
@@ -16,12 +29,14 @@
       #window{
         border:none;
       }
-      button{
+      button.but{
         position:absolute;
+        top: -2px;
         height: 22px;
         width: 22px;
       }
       #title_bar{
+        position: relative;
         background: #FEFEFE;
         height: auto;
         width: 100%;
@@ -68,10 +83,22 @@
           Here we follow the original Euler's proof, as shown in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>.
         </p>
 
+        <h3>Instructions</h3>
+        <p>
+          Use <kbd>F8</kbd> to toggle goal panel.
+        </p><p>
+          Use <kbd>Alt</kbd>+<kbd>Enter</kbd> to run to the current point.
+        </p><p>
+          Use <kbd>Alt</kbd>+<kbd>↓</kbd> to run one extra line and <kbd>Alt</kbd>+<kbd>↑</kbd> to run one less.
+        </p><p>
+          Hover with <kbd>Ctrl</kbd>+<img class="symbol-mouse" src="/node_modules/jscoq/ui-images/pointer.svg" height="13px"> over an
+          executed line to see the proof state in it.
+        </p>
+        <h3>Proof</h3>
         <div id="window">
           <div id="title_bar">
-            <button style="button" onclick="myFunction(this)" id="1"><span id="button_text1">-</span></button>
-          <p id="preproof">
+            <button class="but" onclick="myFunction(this)" id="1"><span id="button_text1">-</span></button>
+          <p id="preproof_main">
             We begin by importing the modules and notations we are going to use.
           </p></div>
           <div id="box1"><p>
@@ -86,13 +113,13 @@ Unset Printing Implicit Defensive.</textarea>
 
         <div id="window">
           <div id="title_bar">
-            <button style="button" onclick="myFunction(this)" id="2"><span id="button_text2">-</span></button><p id="preproof">
+            <button class="but" onclick="myFunction(this)" id="2"><span id="button_text2">-</span></button><p id="preproof_main">
             Before the proof, we're going to need some auxiliary lemmas.
           </p></div>
           <div id="box2"><p>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.1">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.1">
                   <span id="button_text2.1">-</span></button><p id="preproof">
                 Every multiplicative propierty, true over the powers of the prime numbers is true over the
                 natural numbers.
@@ -133,7 +160,7 @@ Lemma prime_decomp_ind (P: nat -> Prop) (P0: P 0) (P1: P 1)
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.2">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.2">
                   <span id="button_text2.2">-</span></button><p id="preproof">
                 Greatest common divisor is multiplicative.
               </p></div>
@@ -172,7 +199,7 @@ Proposition gcdnM a b c: (a > 0) -> (coprime a b) -> gcdn (a*b) c = (gcdn a c)*(
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.3">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.3">
                   <span id="button_text2.3">-</span></button><p id="preproof">
                 The divisors of the product of coprime numbers.
               </p></div>
@@ -191,7 +218,7 @@ Lemma div_gcdnE a b c (apos: a > 0): (coprime a b) ->
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.4">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.4">
                   <span id="button_text2.4">-</span></button><p id="preproof">
                 For a pair of coprime numbers, there is correspondence between the divisors of their product and the pairs of theirs divisors. 
               </p></div>
@@ -230,7 +257,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.5">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.5">
                   <span id="button_text2.5">-</span></button><p id="preproof">
                 Coprimality is invariant under multiplication.
               </p></div>
@@ -251,7 +278,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.6">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.6">
                   <span id="button_text2.6">-</span></button><p id="preproof">
                 Coprime numbers whose principal ideal intersects are equal.
               </p></div>
@@ -282,7 +309,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.7">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.7">
                   <span id="button_text2.7">-</span></button><p id="preproof">
                 The correspondence between sets of divisors induces a correspondence between lists of divisors
                 (needed as mathcomp works with a list of divisors, not a set).
@@ -317,7 +344,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="2.8">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="2.8">
                   <span id="button_text2.8">-</span></button><p id="preproof">
                 The divisors of primes' powers.
               </p></div>
@@ -358,14 +385,14 @@ Qed.</textarea>
 
         <div id="window">
           <div id="title_bar">
-            <button style="button" onclick="myFunction(this)" id="3"><span id="button_text3">-</span></button><p id="preproof">
+            <button class="but" onclick="myFunction(this)" id="3"><span id="button_text3">-</span></button><p id="preproof_main">
             We are now going to work out some results about the dirichlet convolution, the sigma (sum of divisors) function and
             sums in order to prepare the proofs.
           </p></div>
           <div id="box3"><p>
             <div id="window">
               <div id="title_bar">
-                <button style="button" onclick="myFunction(this)" id="3.1">
+                <button class="but" onclick="myFunction(this)" id="3.1">
                   <span id="button_text3.1">-</span></button><p id="preproof">
                 Definition of multiplicativity:
               </p></div>
@@ -376,7 +403,7 @@ Definition multiplicative f := forall a b, (coprime a b) -> f (a*b) = (f a)*(f b
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" onclick="myFunction(this)" id="3.2">
+                <button class="but" onclick="myFunction(this)" id="3.2">
                   <span id="button_text3.2">-</span></button><p id="preproof">
                 Definition of Dirichlet's convolution and sigma function.</p><p id="preproof">
                 To avoid working with positive numbers (and having to carry a positivity proof)
@@ -392,7 +419,7 @@ Definition sigma := dirichlet_conv (fun n => n) (fun n => 1).</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" onclick="myFunction(this)" id="3.3">
+                <button class="but" onclick="myFunction(this)" id="3.3">
                   <span id="button_text3.3">-</span></button><p id="preproof">
                 Definition of perfect numbers.
               </p></div>
@@ -403,7 +430,7 @@ Definition perfect p := sigma p = 2 * p.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.4">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.4">
                   <span id="button_text3.4">-</span></button><p id="preproof">
                 Dirichlet's convolution and, consequently, sigma are multiplicative.
               </p></div>
@@ -448,7 +475,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.5">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.5">
                   <span id="button_text3.5">-</span></button><p id="preproof">
                 Caracterization of the Sum of a Geometric progession for non one naturals.
               </p></div>
@@ -470,7 +497,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.6">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.6">
                   <span id="button_text3.6">-</span></button><p id="preproof">
                 Caracterization of sigma function over primes' powers.</p><p id="preproof">
                 We use it to compute value on primes.
@@ -497,7 +524,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.7">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.7">
                   <span id="button_text3.7">-</span></button><p id="preproof">
                 All elements in a list remain unchanged by the removal of a different element.
               </p></div>
@@ -517,7 +544,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.8">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.8">
                   <span id="button_text3.8">-</span></button><p id="preproof">
                 Caracteritzation of primality as sigma function acting as the successor.
               </p></div>
@@ -567,7 +594,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.9">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.9">
                   <span id="button_text3.9">-</span></button><p id="preproof">
                 If a number is the product of two diferent naturals, its sigma function is greater than their sum
                 plus one plus itself.
@@ -612,7 +639,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.10">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.10">
                   <span id="button_text3.10">-</span></button><p id="preproof">
                 Prime decomposition of the product of coprimes is the concatenation of their prime decompositions.
               </p></div>
@@ -650,7 +677,7 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.11">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.11">
                   <span id="button_text3.11">-</span></button><p id="preproof">
                 Caracterization of sigma, using the prime decomposition of a number.
               </p></div>
@@ -675,9 +702,9 @@ Qed.</textarea>
             </div>
             <div id="window">
               <div id="title_bar">
-                <button style="button" name="subp_button" onclick="myFunction(this)" id="3.12">
+                <button class="but" name="subp_button" onclick="myFunction(this)" id="3.12">
                   <span id="button_text3.12">-</span></button><p id="preproof">
-                Sigma grows faster than squaring.
+                The ratio between the value of sigma on the square of a number over the value on the number is greater than identity.
               </p></div>
               <div id="box3.12"><p>
                 <textarea class="snippet">
@@ -713,19 +740,7 @@ Qed.</textarea>
           </p></div>
         </div>
 
-        <div id="window">
-          <div id="title_bar">
-            <button style="button" name="subp_button" onclick="myFunction(this)" id="4">
-              <span id="button_text4">-</span></button><p id="preproof">
-            Introduïm els mòduls i notacions necessaris per la demostració.
-          </p></div>
-          <div id="box4"><p>
-            <textarea class="snippet">
-</textarea>
-          </p></div>
-        </div>
-
-        <p id="preproof">
+        <p id="preproof_main">
           Euclid theorem on perfect numbers.
         </p>
         <textarea class="snippet">
@@ -750,13 +765,13 @@ Proof.
   by rewrite {2}expnS mulnC mulnA.
 Qed.</textarea>
 
-        <p id="preproof">
+        <p id="preproof_main">
           Euler's Theorem on perfect numbers.
           Can be found in L. E. Dickson's <a href = "https://books.google.es/books/about/History_of_the_Theory_of_Numbers_Divisib.html?id=ljolAQAAIAAJ&redir_esc=y">Divisibility and Primality</a>,
-          page 19 page 19 page 19 page 19.
+          page 19.
         </p>
 
-<textarea class="snippet">
+        <textarea class="snippet">
 Theorem EulerT p: perfect p -> 2%|p -> p > 0 ->
                   exists n, (p = (2^n-1)*2^n.-1)/\(prime (2^n - 1)).
 Proof.
@@ -784,6 +799,8 @@ Proof.
   move: (perp2); rewrite [_*m]mulnC sisq mulnA => /eqP; rewrite eqn_pmul2r;
     last by rewrite expn_gt0.
   move => /eqP perp3.
+  have lt12n: 1 < 2^n-1.
+      by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
   case qis1: (q == 1).
     rewrite (eqP qis1) muln1 in perp3.
     rewrite (eqP qis1) mul1n /s -[_^n](@subnK 1) ?expn_gt0 // perp3 in sisq.
@@ -799,22 +816,19 @@ Proof.
       by move: perp3 => /eqP; rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
     by rewrite ltnS leqn0 => /eqP => mis0; rewrite mis0 in mpos.
   - by move: qis1; rewrite eq_sym => /negP/negP.
-  - case _1is2n: (1 == 2^n - 1) => //=; move: _1is2n.
-    rewrite subn1 -eqSS prednK ?expn_gt0 // -{1}(expn1 2) eqn_exp2l // => /eqP eq1n.
-    by rewrite -eq1n expn0 mul1n in pfac; rewrite -pfac prime_coprime ?peven in cpr2m.
-  case qis2n: (q == 2^n-1) => //=.
-  move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
-  have lt12n: 1 < 2^n-1.
-    by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.</textarea>
+  - by rewrite (ltn_eqF lt12n).</textarea>
 
         <p id="midproof">
           Euler's proof forgets this case, where q is the root of m.
         </p>
         <p id="midproof">
           We're going to see there's no way for the product of a positive power of two and a square number to be a perfect number.
+          It's also true that there are no square perfect numbers, but it's not needed in the proof.
         </p>
 
-<textarea class="snippet">
+        <textarea class="snippet">
+  case qis2n: (q == 2^n-1) => //=.
+  move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
   move: (sigma_sqr (2 ^ n - 1)); rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
   move => nH2; case H: (n <= 1) => //; move: H.
     case H2: (n > 0) => // /(conj H2) /andP; rewrite -eqn_leq => /eqP => H.

@@ -243,7 +243,7 @@ Proof.
       by rewrite leq_exp2l // -addSnnS ltn_addr.
     by rewrite leq_exp2l.
   by rewrite subn_gt0.
-Qed.☺
+Qed.
 
 Corollary sigmaM: multiplicative sigma.
 Proof.
@@ -477,6 +477,8 @@ Proof.
   move: (perp2); rewrite [_*m]mulnC sisq mulnA => /eqP; rewrite eqn_pmul2r;
     last by rewrite expn_gt0.
   move => /eqP perp3.
+  have lt12n: 1 < 2^n-1.
+      by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
   case qis1: (q == 1).
     rewrite (eqP qis1) muln1 in perp3.
     rewrite (eqP qis1) mul1n /s -[_^n](@subnK 1) ?expn_gt0 // perp3 in sisq.
@@ -492,14 +494,10 @@ Proof.
       by move: perp3 => /eqP; rewrite mis1 muln_eq1 => /andP /proj2; rewrite qis1.
     by rewrite ltnS leqn0 => /eqP => mis0; rewrite mis0 in mpos.
   - by move: qis1; rewrite eq_sym => /negP/negP.
-  - case _1is2n: (1 == 2^n - 1) => //=; move: _1is2n.
-    rewrite subn1 -eqSS prednK ?expn_gt0 // -{1}(expn1 2) eqn_exp2l // => /eqP eq1n.
-    by rewrite -eq1n expn0 mul1n in pfac; rewrite -pfac prime_coprime ?peven in cpr2m.
+  - by rewrite (ltn_eqF lt12n).
   case qis2n: (q == 2^n-1) => //=.
          (*A la demo original l'hi faltava demostrar aquesta part*)
   move/eqP in qis2n. move: sisq; rewrite /s -perp3 !qis2n => nH.
-  have lt12n: 1 < 2^n-1.
-    by rewrite ltn_subRL addn1 -{1}(expn1 2) ltn_exp2l.
   move: (sigma_sqr (2 ^ n - 1)); rewrite nH leq_pmul2l; last exact: (@ltn_trans 1).
   move => nH2; case H: (n <= 1) => //; move: H.
     case H2: (n > 0) => // /(conj H2) /andP; rewrite -eqn_leq => /eqP => H.
